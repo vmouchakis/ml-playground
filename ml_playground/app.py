@@ -1,6 +1,25 @@
+import os
+import base64
 import streamlit as st
 from config import models_dict
-from utils import load_model, generate_text
+from utils import load_model, generate_text, get_llava_response
+
+
+def save_uploaded_file(uploaded_file):
+    """Save the uploaded file to a temporary directory and return the file path."""
+    temp_dir = "temp_uploaded_files"
+    if not os.path.exists(temp_dir):
+        os.makedirs(temp_dir)
+    file_path = os.path.join(temp_dir, uploaded_file.name)
+    with open(file_path, "wb") as f:
+        f.write(uploaded_file.getbuffer())
+    return file_path
+
+
+def image_to_base64_with_prefix(local_path):
+    with open(local_path, "rb") as image_file:
+        encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
+        return f"data:image/jpeg;base64,{encoded_string}"
 
 
 def main():
@@ -16,6 +35,15 @@ def main():
         model_path = models_dict[model_name]
         st.write(f"You have selected the model: {model_name}")
         st.write(f"Model path: {model_path}")
+    
+    if model_name.lower() == "llava":
+            image_file = st.file_uploader("Upload an image for the Lava model", type=["jpg", "jpeg", "png"])
+            
+            if image_file:
+                st.image(image_file, caption="Uploaded Image", use_column_width=True)
+                image_path = save_uploaded_file(image_file)
+                image_data = image_to_base64_with_prefix(image_path)
+                get_llava_response(image_path=image_data)
     
 
     question = st.text_area("Enter question: ", height=150)

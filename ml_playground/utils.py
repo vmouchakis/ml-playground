@@ -2,6 +2,7 @@ import torch
 from llama_cpp import Llama
 import os
 import urllib.request
+from config import clip_model
 
 
 def get_device() -> str:
@@ -59,3 +60,28 @@ def generate_text(model,
     )
     output_text = output["choices"][0]["text"].strip()
     return output_text
+
+
+
+def get_llava_response(image_path: str):
+    from llama_cpp.llama_chat_format import Llava15ChatHandler
+    chat_handler = Llava15ChatHandler(clip_model_path=clip_model)
+    llm = Llama(
+    model_path="models/ggml_llava-v1.5-7b-q5_k.gguf",
+    chat_handler=chat_handler,
+    n_ctx=2048, # n_ctx should be increased to accommodate the image embedding
+    n_gpu_layers=-1
+    )
+    response = llm.create_chat_completion(
+        messages = [
+            {"role": "system", "content": "You are an assistant who perfectly describes images."},
+            {
+                "role": "user",
+                "content": [
+                    {"type" : "text", "text": "What's in this image?"},
+                    {"type": "image_url", "image_url": {"url": image_path} }
+                ]
+            }
+        ]
+    )
+    print(response)
