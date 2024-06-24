@@ -26,8 +26,15 @@ def download_file(file_link, filename):
         print("File already exists.")
 
 
-def load_model(model_path):
-    model = Llama(model_path=model_path,  n_ctx=512, n_batch=126, n_gpu_layers=-1)
+def load_model(model_path,
+               n_ctx=512,
+               n_batch=126,
+               chat_handler=None) -> Llama:
+    model = Llama(model_path=model_path,
+                  n_ctx=n_ctx,
+                  n_batch=n_batch,
+                  n_gpu_layers=-1,
+                  chat_handler=chat_handler)
     return model
 
 
@@ -72,6 +79,7 @@ def get_llava_response(image_path: str):
     n_ctx=2048, # n_ctx should be increased to accommodate the image embedding
     n_gpu_layers=-1
     )
+
     response = llm.create_chat_completion(
         messages = [
             {"role": "system", "content": "You are an assistant who perfectly describes images."},
@@ -84,4 +92,4 @@ def get_llava_response(image_path: str):
             }
         ]
     )
-    print(response)
+    return response["choices"][0]["message"]["content"]
