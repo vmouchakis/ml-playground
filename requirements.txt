@@ -1,6 +1,8 @@
 torch
-transformers
-diffusers
-sentencepiece
-bitsandbytes
+# transformers
+# diffusers
+# sentencepiece
+# bitsandbytes
 streamlit
+
+# CMAKE_ARGS="-DLLAMA_METAL=on" pip install llama-cpp-python
