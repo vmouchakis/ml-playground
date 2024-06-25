@@ -1,8 +1,6 @@
+llama-cpp-python
+pydantic
 torch
-# transformers
-# diffusers
-# sentencepiece
-# bitsandbytes
 streamlit
 
 # CMAKE_ARGS="-DLLAMA_METAL=on" pip install llama-cpp-python

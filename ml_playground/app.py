@@ -1,9 +1,11 @@
 import os
 import base64
 import streamlit as st
-from config import models_dict
+from config import models_dict, get_supported_model_types, Modalities
 from utils import load_model, generate_text, get_llava_response
 
+
+modalities = Modalities()
 
 def save_uploaded_file(uploaded_file):
     """Save the uploaded file to a temporary directory and return the file path."""
@@ -28,9 +30,10 @@ def main():
     st.title("LeGo Model Playground")
 
     model_type = st.selectbox("What is the model type of your choice?",
-                              options=list(models_dict.keys()),
+                              options=get_supported_model_types(models_dict),
                               index=None)
-    if model_type and model_type == 'text':
+    
+    if model_type and model_type == modalities.text:
         model_name = st.selectbox("What is the model of your choice?",
                                 options=list(models_dict[model_type].keys()),
                                 index=None)
@@ -48,7 +51,7 @@ def main():
             answer = generate_text(model=model, prompt=question)
             st.write(f"Answer:\n{answer}")
 
-    elif model_type and model_type == 'multimodal':
+    elif model_type and model_type == modalities.image:
         model_name = st.selectbox("What is the model of your choice?",
                                 options=list(models_dict[model_type].keys()),
                                 index=None)
@@ -61,6 +64,9 @@ def main():
                     image_data = image_to_base64_with_prefix(image_path)
                     response = get_llava_response(image_path=image_data)
                     st.write(f"Description: {response}")
+
+    elif model_type and model_type == modalities.audio:
+        pass
 
 
 
