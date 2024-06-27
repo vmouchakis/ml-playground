@@ -38,16 +38,7 @@ def load_model(model_path,
     return model
 
 
-def generate_prompt_from_template(input):
-    chat_prompt_template = f"""<|im_start|>system
-You are a helpful chatbot.<|im_end|>
-<|im_start|>user
-{input}<|im_end|>"""
-    return chat_prompt_template
-
-
-
-def generate_text(model,
+def generate_response_text(model,
                   prompt="Who is the CEO of Apple?",
                   max_tokens=256,
                   temperature=0.1,
@@ -70,7 +61,7 @@ def generate_text(model,
 
 
 
-def get_llava_response(image_path: str):
+def generate_response_vision(image_path: str):
     from llama_cpp.llama_chat_format import Llava15ChatHandler
     chat_handler = Llava15ChatHandler(clip_model_path=clip_model)
     llm = Llama(

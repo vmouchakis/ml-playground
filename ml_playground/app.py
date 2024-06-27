@@ -2,7 +2,7 @@ import os
 import base64
 import streamlit as st
 from config import models_dict, get_supported_model_types, Modalities
-from utils import load_model, generate_text, get_llava_response
+from utils import load_model, generate_response_text, generate_response_vision
 
 
 modalities = Modalities()
@@ -48,7 +48,7 @@ def main():
         if question:
             model = load_model(model_path)
             st.write(f"You asked: {question}")
-            answer = generate_text(model=model, prompt=question)
+            answer = generate_response_text(model=model, prompt=question)
             st.write(f"Answer:\n{answer}")
 
     elif model_type and model_type == modalities.image:
@@ -62,7 +62,7 @@ def main():
                     st.image(image_file, caption="Uploaded Image", use_column_width=True)
                     image_path = save_uploaded_file(image_file)
                     image_data = image_to_base64_with_prefix(image_path)
-                    response = get_llava_response(image_path=image_data)
+                    response = generate_response_vision(image_path=image_data)
                     st.write(f"Description: {response}")
 
     elif model_type and model_type == modalities.audio:
