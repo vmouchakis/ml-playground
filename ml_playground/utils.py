@@ -2,7 +2,6 @@ import torch
 from llama_cpp import Llama
 import os
 import urllib.request
-from config import clip_model
 
 
 def get_device() -> str:
@@ -26,11 +25,12 @@ def download_file(file_link, filename):
         print("File already exists.")
 
 
-def load_model(model_path,
-               n_ctx=512,
-               n_batch=126,
-               chat_handler=None) -> Llama:
-    model = Llama(model_path=model_path,
+def load_text_model(model_dict,
+                    n_ctx=512,
+                    n_batch=126,
+                    chat_handler=None) -> Llama:
+    
+    model = Llama(model_path=model_dict["path"],
                   n_ctx=n_ctx,
                   n_batch=n_batch,
                   n_gpu_layers=-1,
@@ -39,15 +39,12 @@ def load_model(model_path,
 
 
 def generate_response_text(model,
-                  prompt="Who is the CEO of Apple?",
-                  max_tokens=256,
-                  temperature=0.1,
-                  top_p=0.5,
-                  echo=False,
-                  stop=["#"],):
-    
-    # prompt = generate_prompt_from_template(prompt)
-
+                           prompt="Who is the CEO of Apple?",
+                           max_tokens=256,
+                           temperature=0.1,
+                           top_p=0.5,
+                           echo=False,
+                           stop=["#"],):
     output = model(
         prompt,
         max_tokens=max_tokens,
@@ -60,18 +57,20 @@ def generate_response_text(model,
     return output_text
 
 
+def load_image_model(model_dict: dict) -> Llama:
+    if model_dict["name"] == "llava":
+        from llama_cpp.llama_chat_format import Llava15ChatHandler
+        chat_handler = Llava15ChatHandler(clip_model_path=model_dict["clip_model_path"])
+        model = Llama(
+                model_path=model_dict["path"],
+                chat_handler=chat_handler,
+                n_ctx=2048, # n_ctx should be increased to accommodate the image embedding
+                n_gpu_layers=-1)
+        return model
 
-def generate_response_vision(image_path: str):
-    from llama_cpp.llama_chat_format import Llava15ChatHandler
-    chat_handler = Llava15ChatHandler(clip_model_path=clip_model)
-    llm = Llama(
-    model_path="models/ggml_llava-v1.5-7b-q5_k.gguf",
-    chat_handler=chat_handler,
-    n_ctx=2048, # n_ctx should be increased to accommodate the image embedding
-    n_gpu_layers=-1
-    )
 
-    response = llm.create_chat_completion(
+def generate_response_image(model: Llama, image_path: str):
+    response = model.create_chat_completion(
         messages = [
             {"role": "system", "content": "You are an assistant who perfectly describes images."},
             {

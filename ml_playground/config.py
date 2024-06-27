@@ -12,18 +12,21 @@ class ModelTasks(BaseModel):
     code_generation: list = ["codellama"]
 
 
-clip_model = "models/mmproj-model-f16.gguf"
-
 models_dict = {
     "text": {
         "zephyr": {
+            "name": "zephyr",
             "path": "models/zephyr-7b-beta.Q4_0.gguf",
             "tasks": ["text generation"],
             "type": "text",
-            "prompt_template": None,
+            "prompt_template": """<|im_start|>system
+                You are a helpful chatbot.<|im_end|>
+                <|im_start|>user
+                {input}<|im_end|>""",
             "supported": True
         },
         "codellama": {
+            "name": "codellama",
             "path": "models/codellama-7b.Q8_0.gguf",
             "tasks": ["code generation", "code completion"],
             "type": "code",
@@ -33,7 +36,9 @@ models_dict = {
     },
     "image": {
         "llava": {
+            "name": "llava",
             "path": "models/ggml_llava-v1.5-7b-q5_k.gguf",
+            "clip_model_path": "models/mmproj-model-f16.gguf",
             "tasks": ["image description", "visual question answering"],
             "type": "image",
             "prompt_template": {
@@ -47,6 +52,7 @@ models_dict = {
     },
     "audio": {
         "whisper": {
+            "name": "whisper",
             "path": "models/ggml-whisper-large-v3.bin",
             "tasks": ["speech-to-text"],
             "type": "audio",

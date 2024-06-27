@@ -2,7 +2,7 @@ import os
 import base64
 import streamlit as st
 from config import models_dict, get_supported_model_types, Modalities
-from utils import load_model, generate_response_text, generate_response_vision
+from utils import load_text_model, generate_response_text, load_image_model, generate_response_image
 
 
 modalities = Modalities()
@@ -39,14 +39,14 @@ def main():
                                 index=None)
 
         if model_name:
-            model_path = models_dict[model_type][model_name]["model_path"]
+            model_path = models_dict[model_type][model_name]["path"]
             st.write(f"You have selected the model: {model_name}")
             st.write(f"Model path: {model_path}")
 
         question = st.text_area("Enter question: ", height=150)
 
         if question:
-            model = load_model(model_path)
+            model = load_text_model(models_dict[model_type][model_name])
             st.write(f"You asked: {question}")
             answer = generate_response_text(model=model, prompt=question)
             st.write(f"Answer:\n{answer}")
@@ -62,12 +62,12 @@ def main():
                     st.image(image_file, caption="Uploaded Image", use_column_width=True)
                     image_path = save_uploaded_file(image_file)
                     image_data = image_to_base64_with_prefix(image_path)
-                    response = generate_response_vision(image_path=image_data)
+                    model = load_image_model(models_dict[model_type][model_name])
+                    response = generate_response_image(model, image_data)
                     st.write(f"Description: {response}")
 
     elif model_type and model_type == modalities.audio:
         pass
-
 
 
 if __name__ == "__main__":
